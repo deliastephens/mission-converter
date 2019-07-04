@@ -16,7 +16,7 @@ def readMission(aFileName):
     command_list = []
     wp_list = []
 
-    print("Reading a mission")
+    print("Reading mission...")
     # Opens the filename
     with open(aFileName) as f:
         for i, line in enumerate(f):
@@ -34,7 +34,6 @@ def readMission(aFileName):
                 ln_param5=float(linearray[8])
                 ln_param6=float(linearray[9])
                 command_list.append((linearray))
-    print(wp_list)
 
 def calcDiff():
     """
@@ -56,7 +55,6 @@ def calcDiff():
         lat_diff = next_lat - lat
         long_diff = next_long - long
         diffs.append((lat_diff, long_diff))
-    print(diffs)
 
 def createNewCoords(vehicle):
     """
@@ -90,13 +88,16 @@ def createNewCoords(vehicle):
             prev_lat = float(new_command_list[i][8])
             prev_long = float(new_command_list[i][9])
 
+    print('New Command List:')
+    for command in new_command_list:
+        print(command)
+
 
 def makeCommands():
     # Makes commands out o f the new command list with modified coordinates
     # From the 3DR example code
     global new_command_list
-    print('making commands')
-    print(len(new_command_list))
+    print('Making new commands...')
     missionList = []
     for command in new_command_list:
         ln_index=int(command[0])
@@ -113,7 +114,6 @@ def makeCommands():
         ln_autocontinue=int(command[11])
         cmd = Command(0, 0, 0, ln_frame, ln_command, ln_currentwp, ln_autocontinue, ln_param1, ln_param2, ln_param3, ln_param4, ln_param5, ln_param6, ln_param7)
         missionList.append(cmd)
-    print('changed length ' + str(len(missionList)))
     return missionList
 
 def processMission(fileName, vehicle):
