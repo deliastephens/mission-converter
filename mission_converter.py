@@ -1,8 +1,8 @@
 from dronekit import Command
 command_list = [] # List of commands from original WP file
-coord_list = [] # List of (lat, long) pairs from original WP file
 diffs = [] # List of (lat diff, long diff): differences between waypoints
 new_command_list = [] # Recentered list of commands
+wp_list = [] # List of all waypoints
 
 def readMission(aFileName):
     """
@@ -12,7 +12,7 @@ def readMission(aFileName):
     Returns a list of latitude, longitude pairs.
     """
     global command_list
-    global coord_list
+    global wp_list
 
 
     print("Reading a mission")
@@ -28,27 +28,34 @@ def readMission(aFileName):
                 linearray=line.strip().split('\t')
                 print(linearray)
                 command_type = float(linearray[3])
-                print(command_type)
+                if command_type == 16.0:
+                    wp_list.append(linearray)
                 ln_param5=float(linearray[8])
                 ln_param6=float(linearray[9])
                 command_list.append((linearray))
-                coord_list.append((ln_param5, ln_param6))
+    print(wp_list)
 
 def calcDiff():
     """
     Calculates the difference between waypoints. Right now only supports
     takeoff and waypoint commands.
     """
-    global coord_list
+    global wp_list
     global diffs
 
     # Goes through each coordinate in list of coordinates
     # Calculates the difference between each pair
     # Appends to an array
-    for i in range(len(coord_list) - 1):
-        lat_diff = coord_list[i + 1][0] - coord_list[i][0]
-        long_diff = coord_list[i + 1][1] - coord_list[i][1]
+    for i in range(len(wp_list) - 1):
+        next_lat = float(wp_list[i + 1][8])
+        lat = float(wp_list[i][8])
+        next_long = float(wp_list[i + 1][9])
+        long = float(wp_list[i][9])
+
+        lat_diff = next_lat - lat
+        long_diff = next_long - long
         diffs.append((lat_diff, long_diff))
+    print(diffs)
 
 def createNewCoords(vehicle):
     """
@@ -75,11 +82,12 @@ def createNewCoords(vehicle):
     # Adds the difference between coordinates to the previous latitude
     # and longitude by indexing into difference array
     for i in range(1, len(new_command_list)):
-        new_command_list[i][8] = diffs[i - 1][0] + prev_lat
-        new_command_list[i][9] = diffs[i - 1][1] + prev_long
-        prev_lat = float(new_command_list[i][8])
-        prev_long = float(new_command_list[i][9])
-        print(prev_lat, prev_long)
+        if float(new_command_list[i][3]) == 16:
+            lat_diff, long_diff = diffs.pop(0)
+            new_command_list[i][8] = lat_diff + prev_lat
+            new_command_list[i][9] = long_diff + prev_long
+            prev_lat = float(new_command_list[i][8])
+            prev_long = float(new_command_list[i][9])
 
 
 def makeCommands():
@@ -123,7 +131,5 @@ def processMission(fileName, vehicle):
     createNewCoords(vehicle)
     changedMissionList = makeCommands()
     return changedMissionList
-
-print(readMission('mission_better.txt'))
 
 #print(processMission('mission_basic.txt'))
