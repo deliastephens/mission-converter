@@ -14,3 +14,6 @@ it requires a dronekit-python vehicle to be sent is an variable into
 one of the functions.
 
 The WP file should be a text file in this format:
+![](https://raw.githubusercontent.com/deliastephens/mission-converter/master/wp_format.PNG)
+For more information on what these numbers mean, please check out the [MavLink
+Headers](https://github.com/ArduPilot/ardupilot/tree/master/libraries/GCS_MAVLink).
