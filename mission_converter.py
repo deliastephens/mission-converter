@@ -13,7 +13,8 @@ def readMission(aFileName):
     """
     global command_list
     global wp_list
-
+    command_list = []
+    wp_list = []
 
     print("Reading a mission")
     # Opens the filename
